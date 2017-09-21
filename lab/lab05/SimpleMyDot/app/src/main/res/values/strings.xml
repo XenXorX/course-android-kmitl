@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">SimpleMyDot</string>
+    <string name="random_dot">RANDOM DOT</string>
+    <string name="clear_dot">CLEAR DOT</string>
+    <string name="undo">UNDO</string>
+    <string name="share">SHARE</string>
+    <string name="done">DONE</string>
+    <string name="cancel">CANCEL</string>
+    <string name="coordinate">Coordinate</string>
+    <string name="radius">Radius</string>
+    <string name="color">Color</string>
+    <string name="x">X</string>
+    <string name="y">Y</string>
+</resources>
