@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/listView"
+        android:title="list"
+        android:icon="@drawable/ic_list_view"
+        app:showAsAction="always"
+        android:visible="true"/>
+
+    <item
+        android:id="@+id/gridView"
+        android:title="grid"
+        android:icon="@drawable/ic_grid_view"
+        app:showAsAction="always"
+        android:visible="false"/>
+
+    <item
+        android:id="@+id/android"
+        android:title="android"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/nature"
+        android:title="nature"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/cartoon"
+        android:title="cartoon"
+        app:showAsAction="never"/>
+
+</menu>

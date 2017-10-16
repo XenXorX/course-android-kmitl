@@ -3,7 +3,11 @@ package kmitl.lab07.chanapat58070024.mylazyinstagram;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -18,13 +22,57 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends AppCompatActivity {
+    private PostAdapter postAdapter;
+    private MenuItem listView;
+    private MenuItem gridView;
+    private RecyclerView recyclerView;
+    private RecyclerView.LayoutManager layoutManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        getUserProfile("nature");
+        recyclerView = findViewById(R.id.list);
+        postAdapter = new PostAdapter(this);
+        layoutManager = new GridLayoutManager(this, 3);
+        getUserProfile("android");
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_main, menu);
+        listView = menu.findItem(R.id.listView);
+        gridView = menu.findItem(R.id.gridView);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch(item.getItemId()) {
+            case R.id.listView:
+                layoutManager = new LinearLayoutManager(this);
+                viewIconSwitch(gridView, listView);
+                displayPosts();
+                return true;
+            case R.id.gridView:
+                layoutManager = new GridLayoutManager(this, 3);
+                viewIconSwitch(listView, gridView);
+                displayPosts();
+                return true;
+            case R.id.android:
+                getUserProfile("android");
+                return true;
+            case R.id.nature:
+                getUserProfile("nature");
+                return true;
+            case R.id.cartoon:
+                getUserProfile("cartoon");
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     private void getUserProfile(String name) {
@@ -42,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
             public void onResponse(retrofit2.Call<UserProfile> call, retrofit2.Response<UserProfile> response) {
                 if(response.isSuccessful()) {
                     UserProfile user = response.body();
-                    display(user);
+                    displayDetail(user);
                 }
             }
             @Override
@@ -52,16 +100,16 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void display(UserProfile userProfile){
-        TextView textUser = (TextView) findViewById(R.id.textUser);
+    private void displayDetail(UserProfile userProfile){
+        TextView textUser = findViewById(R.id.textUser);
         textUser.setText("@"+userProfile.getUser());
-        TextView textPost = (TextView) findViewById(R.id.textPost);
+        TextView textPost = findViewById(R.id.textPost);
         textPost.setText("Post\n"+userProfile.getPost());
-        TextView textFollower = (TextView) findViewById(R.id.textFollower);
+        TextView textFollower = findViewById(R.id.textFollower);
         textFollower.setText("Follower\n"+userProfile.getFollower());
-        TextView textFollwing = (TextView) findViewById(R.id.textFollwing);
+        TextView textFollwing = findViewById(R.id.textFollwing);
         textFollwing.setText("Following\n"+userProfile.getFollowing());
-        TextView textBio = (TextView) findViewById(R.id.textBio);
+        TextView textBio = findViewById(R.id.textBio);
         textBio.setText(userProfile.getBio());
 
         ImageView imageProfile = findViewById(R.id.imageProfile);
@@ -69,10 +117,17 @@ public class MainActivity extends AppCompatActivity {
                 .load(userProfile.getUrlProfile())
                 .into(imageProfile);
 
-        PostAdapter postAdapter = new PostAdapter(this);
         postAdapter.setData(userProfile.getPosts());
-        RecyclerView recyclerView = findViewById(R.id.list);
-        recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
         recyclerView.setAdapter(postAdapter);
+        displayPosts();
+    }
+
+    private void displayPosts() {
+        recyclerView.setLayoutManager(layoutManager);
+    }
+
+    private void viewIconSwitch(MenuItem showItem,MenuItem hideItem) {
+        showItem.setVisible(true);
+        hideItem.setVisible(false);
     }
 }
