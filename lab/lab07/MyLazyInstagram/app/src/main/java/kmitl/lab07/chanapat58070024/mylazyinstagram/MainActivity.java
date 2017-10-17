@@ -8,6 +8,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -23,6 +25,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends AppCompatActivity {
     private PostAdapter postAdapter;
+    private View loading;
     private MenuItem listView;
     private MenuItem gridView;
     private RecyclerView recyclerView;
@@ -34,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         recyclerView = findViewById(R.id.list);
+        loading = findViewById(R.id.loading);
         postAdapter = new PostAdapter(this);
         layoutManager = new GridLayoutManager(this, 3);
         getUserProfile("android");
@@ -62,12 +66,15 @@ public class MainActivity extends AppCompatActivity {
                 displayPosts();
                 return true;
             case R.id.android:
+                loading.setVisibility(View.VISIBLE);
                 getUserProfile("android");
                 return true;
             case R.id.nature:
+                loading.setVisibility(View.VISIBLE);
                 getUserProfile("nature");
                 return true;
             case R.id.cartoon:
+                loading.setVisibility(View.VISIBLE);
                 getUserProfile("cartoon");
                 return true;
             default:
@@ -112,6 +119,16 @@ public class MainActivity extends AppCompatActivity {
         TextView textBio = findViewById(R.id.textBio);
         textBio.setText(userProfile.getBio());
 
+        Button btn_follow = findViewById(R.id.btn_follow);
+        btn_follow.setVisibility(View.GONE);
+        Button btn_followed = findViewById(R.id.btn_followed);
+        btn_followed.setVisibility(View.GONE);
+        if(userProfile.isFollow()) {
+            btn_followed.setVisibility(View.VISIBLE);
+        } else {
+            btn_follow.setVisibility(View.VISIBLE);
+        }
+
         ImageView imageProfile = findViewById(R.id.imageProfile);
         Glide.with(MainActivity.this)
                 .load(userProfile.getUrlProfile())
@@ -124,6 +141,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void displayPosts() {
         recyclerView.setLayoutManager(layoutManager);
+        loading.setVisibility(View.GONE);
     }
 
     private void viewIconSwitch(MenuItem showItem,MenuItem hideItem) {
