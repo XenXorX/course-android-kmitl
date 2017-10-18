@@ -66,15 +66,12 @@ public class MainActivity extends AppCompatActivity {
                 displayPosts();
                 return true;
             case R.id.android:
-                loading.setVisibility(View.VISIBLE);
                 getUserProfile("android");
                 return true;
             case R.id.nature:
-                loading.setVisibility(View.VISIBLE);
                 getUserProfile("nature");
                 return true;
             case R.id.cartoon:
-                loading.setVisibility(View.VISIBLE);
                 getUserProfile("cartoon");
                 return true;
             default:
@@ -83,6 +80,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void getUserProfile(String name) {
+        loading.setVisibility(View.VISIBLE);
         OkHttpClient client = new OkHttpClient.Builder().build();
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(Api.BASE)
@@ -137,11 +135,11 @@ public class MainActivity extends AppCompatActivity {
         postAdapter.setData(userProfile.getPosts());
         recyclerView.setAdapter(postAdapter);
         displayPosts();
+        loading.setVisibility(View.GONE);
     }
 
     private void displayPosts() {
         recyclerView.setLayoutManager(layoutManager);
-        loading.setVisibility(View.GONE);
     }
 
     private void viewIconSwitch(MenuItem showItem,MenuItem hideItem) {
