@@ -1,13 +1,24 @@
 package kmitl.lab09.chanapat58070024.moneyflow.model;
 
+import android.arch.persistence.room.ColumnInfo;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.PrimaryKey;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+@Entity(tableName = "LEDGER_ITEM")
 public class LedgerItem implements Parcelable{
+    @PrimaryKey(autoGenerate = true)
+    private int id;
+
+    @ColumnInfo(name = "SYMBOL")
     private char symbol;
+
+    @ColumnInfo(name = "DESCRIPTION")
     private String description;
+
+    @ColumnInfo(name = "AMOUNT")
     private int amount;
-    private LedgerItemChangedListener listener;
 
     protected LedgerItem(Parcel in) {
         symbol = (char) in.readInt();
@@ -39,14 +50,14 @@ public class LedgerItem implements Parcelable{
         parcel.writeInt(amount);
     }
 
-    public interface LedgerItemChangedListener {
-        void onLedgerItemChanged(LedgerItem ledgerItem);
-    }
-
     public LedgerItem() {}
 
-    public void setListener(LedgerItemChangedListener listener) {
-        this.listener = listener;
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public char getSymbol() {
@@ -55,7 +66,6 @@ public class LedgerItem implements Parcelable{
 
     public void setSymbol(char symbol) {
         this.symbol = symbol;
-        listener.onLedgerItemChanged(this);
     }
 
     public String getDescription() {
@@ -64,7 +74,6 @@ public class LedgerItem implements Parcelable{
 
     public void setDescription(String description) {
         this.description = description;
-        listener.onLedgerItemChanged(this);
     }
 
     public int getAmount() {
@@ -73,6 +82,5 @@ public class LedgerItem implements Parcelable{
 
     public void setAmount(int amount) {
         this.amount = amount;
-        listener.onLedgerItemChanged(this);
     }
 }

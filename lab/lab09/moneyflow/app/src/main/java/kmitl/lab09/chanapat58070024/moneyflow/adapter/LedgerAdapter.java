@@ -9,6 +9,7 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import kmitl.lab09.chanapat58070024.moneyflow.R;
 import kmitl.lab09.chanapat58070024.moneyflow.model.LedgerItem;
@@ -23,7 +24,7 @@ public class LedgerAdapter extends BaseAdapter {
         this.context = context;
     }
 
-    public ArrayList<LedgerItem> getLedgerItems() {
+    public List<LedgerItem> getLedgerItems() {
         return ledgerItems;
     }
 

@@ -1,7 +1,9 @@
 package kmitl.lab09.chanapat58070024.moneyflow.fragment;
 
 
+import android.arch.persistence.room.Room;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
@@ -14,14 +16,14 @@ import android.widget.EditText;
 
 import kmitl.lab09.chanapat58070024.moneyflow.R;
 import kmitl.lab09.chanapat58070024.moneyflow.model.LedgerItem;
-import kmitl.lab09.chanapat58070024.moneyflow.model.LedgerItemList;
+import kmitl.lab09.chanapat58070024.moneyflow.model.LedgerItemDatabase;
 
 public class EditItemFragment extends Fragment {
     private final int incomeBtnColor = Color.rgb(120, 255, 120);
     private final int expenseBtnColor = Color.rgb(255, 120, 120);
     private final int hidBtnColor = Color.rgb(255, 255, 255);
 
-    private LedgerItemList ledgerItemList;
+    private LedgerItemDatabase ledgerItemDB;
     private LedgerItem ledgerItem;
     private Button incomeBtn;
     private Button expenseBtn;
@@ -31,11 +33,10 @@ public class EditItemFragment extends Fragment {
 
     public EditItemFragment() {}
 
-    public static EditItemFragment newInstance(LedgerItemList ledgerItemList, int i) {
+    public static EditItemFragment newInstance(LedgerItem ledgerItem) {
         EditItemFragment fragment = new EditItemFragment();
         Bundle args = new Bundle();
-        args.putParcelable("ledgerItemList", ledgerItemList);
-        args.putInt("index", i);
+        args.putParcelable("ledgerItem", ledgerItem);
         fragment.setArguments(args);
         return fragment;
     }
@@ -43,10 +44,10 @@ public class EditItemFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ledgerItemDB = Room.databaseBuilder(getActivity().getApplicationContext(),
+                LedgerItemDatabase.class, "DEMOINFO").build();
         if (getArguments() != null) {
-            ledgerItemList = getArguments().getParcelable("ledgerItemList");
-            int i = getArguments().getInt("index");
-            ledgerItem = ledgerItemList.getLedgerItems().get(i);
+            ledgerItem = getArguments().getParcelable("ledgerItem");
             symbol = ledgerItem.getSymbol();
         }
     }
@@ -90,9 +91,20 @@ public class EditItemFragment extends Fragment {
         applyBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ledgerItem.setSymbol(symbol);
-                ledgerItem.setDescription(String.valueOf(descriptionEt.getText()));
-                ledgerItem.setAmount(Integer.parseInt(String.valueOf(amountEt.getText())));
+                new AsyncTask<Void, Void, LedgerItem>(){
+
+                    @Override
+                    protected LedgerItem doInBackground(Void... voids) {
+                        ledgerItem.setSymbol(symbol);
+                        ledgerItem.setDescription(String.valueOf(descriptionEt.getText()));
+                        ledgerItem.setAmount(Integer.parseInt(String.valueOf(amountEt.getText())));
+
+                        ledgerItemDB.ledgerItemRoomDAO().update(ledgerItem);
+
+                        return null;
+                    }
+                }.execute();
+
                 getFragmentManager().popBackStack();
             }
         });
@@ -101,7 +113,16 @@ public class EditItemFragment extends Fragment {
         deleteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ledgerItemList.removeItem(ledgerItem);
+                new AsyncTask<Void, Void, LedgerItem>(){
+
+                    @Override
+                    protected LedgerItem doInBackground(Void... voids) {
+                        ledgerItemDB.ledgerItemRoomDAO().delete(ledgerItem);
+
+                        return null;
+                    }
+                }.execute();
+
                 getFragmentManager().popBackStack();
             }
         });

@@ -1,7 +1,9 @@
 package kmitl.lab09.chanapat58070024.moneyflow.fragment;
 
 
+import android.arch.persistence.room.Room;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Bundle;
 
 import android.support.v4.app.Fragment;
@@ -15,40 +17,27 @@ import android.widget.EditText;
 
 import kmitl.lab09.chanapat58070024.moneyflow.R;
 import kmitl.lab09.chanapat58070024.moneyflow.model.LedgerItem;
-import kmitl.lab09.chanapat58070024.moneyflow.model.LedgerItemList;
+import kmitl.lab09.chanapat58070024.moneyflow.model.LedgerItemDatabase;
 
-public class AddItemFragment extends Fragment implements LedgerItem.LedgerItemChangedListener {
+public class AddItemFragment extends Fragment {
     private final int incomeBtnColor = Color.rgb(120, 255, 120);
     private final int expenseBtnColor = Color.rgb(255, 120, 120);
     private final int hidBtnColor = Color.rgb(255, 255, 255);
 
-    private LedgerItemList ledgerItemList;
-    private LedgerItem ledgerItem;
+    private LedgerItemDatabase ledgerItemDB;
     private Button incomeBtn;
     private Button expenseBtn;
     private EditText descriptionEt;
     private EditText amountEt;
     private char symbol;
 
-    public AddItemFragment() {}
-
-    public static AddItemFragment newInstance(LedgerItemList ledgerItemList) {
-        AddItemFragment fragment = new AddItemFragment();
-        Bundle args = new Bundle();
-        args.putParcelable("ledgerItemList", ledgerItemList);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            ledgerItemList = getArguments().getParcelable("ledgerItemList");
-            ledgerItem = new LedgerItem();
-            ledgerItem.setListener(this);
-            symbol = '+';
-        }
+        ledgerItemDB = Room.databaseBuilder(getActivity().getApplicationContext(),
+                LedgerItemDatabase.class, "DEMOINFO").build();
+
+        symbol = '+';
     }
 
     @Override
@@ -89,10 +78,21 @@ public class AddItemFragment extends Fragment implements LedgerItem.LedgerItemCh
         applyBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ledgerItem.setSymbol(symbol);
-                ledgerItem.setDescription(String.valueOf(descriptionEt.getText()));
-                ledgerItem.setAmount(Integer.parseInt(String.valueOf(amountEt.getText())));
-                ledgerItemList.addItem(ledgerItem);
+                new AsyncTask<Void, Void, LedgerItem>(){
+
+                    @Override
+                    protected LedgerItem doInBackground(Void... voids) {
+                        LedgerItem ledgerItem = new LedgerItem();
+                        ledgerItem.setSymbol(symbol);
+                        ledgerItem.setDescription(String.valueOf(descriptionEt.getText()));
+                        ledgerItem.setAmount(Integer.parseInt(String.valueOf(amountEt.getText())));
+
+                        ledgerItemDB.ledgerItemRoomDAO().insert(ledgerItem);
+
+                        return null;
+                    }
+                }.execute();
+
                 getFragmentManager().popBackStack();
             }
         });
@@ -128,10 +128,5 @@ public class AddItemFragment extends Fragment implements LedgerItem.LedgerItemCh
             incomeBtn.setBackgroundColor(hidBtnColor);
             expenseBtn.setBackgroundColor(expenseBtnColor);
         }
-    }
-
-    @Override
-    public void onLedgerItemChanged(LedgerItem ledgerItem) {
-        ledgerItemList.getListener().onLedgerItemListChanged(ledgerItemList);
     }
 }
