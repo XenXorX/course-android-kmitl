@@ -25,9 +25,9 @@ import kmitl.lab09.chanapat58070024.moneyflow.model.LedgerItemDatabase;
 
 public class LedgerFragment extends Fragment {
     private LedgerItemDatabase ledgerItemDB;
-    private ArrayList<LedgerItem> ledgerItemList;
+    private LedgerAdapter adapter;
     private TextView balanceText;
-    private View rootView;
+    private ListView listView;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -39,9 +39,21 @@ public class LedgerFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        rootView = inflater.inflate(R.layout.fragment_ledger, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_ledger, container, false);
 
-        ledgerItemList = new ArrayList<>();
+        balanceText = rootView.findViewById(R.id.text_balance);
+        adapter = new LedgerAdapter(getActivity().getApplicationContext());
+
+        listView = rootView.findViewById(R.id.list);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                FragmentTransaction transaction = getFragmentManager().beginTransaction();
+                transaction.replace(R.id.fragmentContainer, new EditItemFragment().newInstance(adapter.getLedgerItems().get(i)));
+                transaction.addToBackStack(null);
+                transaction.commit();
+            }
+        });
 
         new AsyncTask<Void, Void, List<LedgerItem>>(){
 
@@ -54,39 +66,29 @@ public class LedgerFragment extends Fragment {
 
             @Override
             protected void onPostExecute(List<LedgerItem> ledgerItems) {
+                ArrayList<LedgerItem> ledgerItemList = new ArrayList<>();
+
                 for(LedgerItem ledgerItem: ledgerItems) {
                     ledgerItemList.add(ledgerItem);
                 }
-                LedgerAdapter adapter = new LedgerAdapter(getActivity().getApplicationContext());
+
                 adapter.setLedgerItems(ledgerItemList);
-
-                balanceText = rootView.findViewById(R.id.text_balance);
+                listView.setAdapter(adapter);
                 balanceText.setText(String.valueOf(calLedger(ledgerItemList)));
-
-                Button addBtn = rootView.findViewById(R.id.btn_add);
-                addBtn.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        FragmentTransaction transaction = getFragmentManager().beginTransaction();
-                        transaction.replace(R.id.fragmentContainer, new AddItemFragment());
-                        transaction.addToBackStack(null);
-                        transaction.commit();
-                    }
-                });
-
-                ListView list = rootView.findViewById(R.id.list);
-                list.setAdapter(adapter);
-                list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                        FragmentTransaction transaction = getFragmentManager().beginTransaction();
-                        transaction.replace(R.id.fragmentContainer, new EditItemFragment().newInstance(ledgerItemList.get(i)));
-                        transaction.addToBackStack(null);
-                        transaction.commit();
-                    }
-                });
             }
         }.execute();
+
+
+        Button addBtn = rootView.findViewById(R.id.btn_add);
+        addBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                FragmentTransaction transaction = getFragmentManager().beginTransaction();
+                transaction.replace(R.id.fragmentContainer, new AddItemFragment());
+                transaction.addToBackStack(null);
+                transaction.commit();
+            }
+        });
 
         return rootView;
     }
